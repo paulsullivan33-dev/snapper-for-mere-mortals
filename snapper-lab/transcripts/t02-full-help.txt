@@ -1,0 +1,143 @@
+# t02 — the full snapper command map (snapper --help, unedited)
+
+usage: snapper [--global-options] <command> [--command-options] [command-arguments]
+
+    Global options:
+	--quiet, -q			Suppress normal output.
+	--verbose, -v			Increase verbosity.
+	--debug				Turn on debugging.
+	--utc				Display dates and times in UTC.
+	--iso				Display dates and times in ISO format.
+	--table-style, -t <style>	Table style (integer).
+	--abbreviate			Allow to abbreviate table columns.
+	--machine-readable <format>	Set a machine-readable output format (csv, json).
+	--csvout			Set CSV output format.
+	--jsonout			Set JSON output format.
+	--separator <separator>		Character separator for CSV output format.
+	--no-headers			No headers for CSV output format.
+	--config, -c <name>		Set name of config to use.
+	--no-dbus			Operate without DBus.
+	--root, -r <path>		Operate on target root (works only without DBus).
+	--ambit, -a ambit		Operate in the specified ambit.
+	--version			Print version and exit.
+
+  List configs:
+	snapper list-configs
+
+    Options for 'list-configs' command:
+	--columns <columns>		Columns to show separated by comma.
+					Possible columns: config, subvolume.
+
+  Create config:
+	snapper create-config <subvolume>
+
+    Options for 'create-config' command:
+	--fstype, -f <fstype>		Manually set filesystem type.
+	--template, -t <name>		Name of config template to use.
+
+  Delete config:
+	snapper delete-config
+
+  Get config:
+	snapper get-config
+
+    Options for 'get-config' command:
+	--columns <columns>		Columns to show separated by comma.
+					Possible columns: key, value.
+					Columns are not selected when JSON format is used.
+
+  Set config:
+	snapper set-config <configdata>
+
+  List snapshots:
+	snapper list
+
+    Options for 'list' command:
+	--type, -t <type>		Type of snapshots to list.
+	--disable-used-space		Disable showing used space.
+	--all-configs, -a		List snapshots from all accessible configs.
+	--columns <columns>		Columns to show separated by comma.
+					Possible columns: config, subvolume, number, default, active,
+					type, date, user, used-space, cleanup, description, userdata,
+					pre-number, post-number, post-date, read-only.
+
+  Create snapshot:
+	snapper create
+
+    Options for 'create' command:
+	--type, -t <type>		Type for snapshot.
+	--pre-number <number>		Number of corresponding pre snapshot.
+	--print-number, -p		Print number of created snapshot.
+	--description, -d <description>	Description for snapshot.
+	--cleanup-algorithm, -c <algo>	Cleanup algorithm for snapshot.
+	--userdata, -u <userdata>	Userdata for snapshot.
+	--command <command>		Run command and create pre and post snapshots.
+	--read-only			Create read-only snapshot.
+	--read-write			Create read-write snapshot.
+	--from <number>			Create a snapshot from the specified snapshot.
+
+  Modify snapshot:
+	snapper modify <number>
+
+    Options for 'modify' command:
+	--description, -d <description>	Description for snapshot.
+	--cleanup-algorithm, -c <algo>	Cleanup algorithm for snapshot.
+	--userdata, -u <userdata>	Userdata for snapshot.
+	--read-only			Set snapshot read-only.
+	--read-write			Set snapshot read-write.
+	--default			Set snapshot as default snapshot.
+
+  Delete snapshot:
+	snapper delete <number>
+
+    Options for 'delete' command:
+	--sync, -s			Sync after deletion.
+
+  Mount snapshot:
+	snapper mount <number>
+
+  Umount snapshot:
+	snapper umount <number>
+
+  Comparing snapshots:
+	snapper status <number1>..<number2>
+
+    Options for 'status' command:
+	--output, -o <file>		Save status to file.
+
+  Comparing snapshots:
+	snapper diff <number1>..<number2> [files]
+
+    Options for 'diff' command:
+	--input, -i <file>		Read files to diff from file.
+	--diff-cmd <command>		Command used for comparing files.
+	--extensions, -x <options>	Extra options passed to the diff command.
+
+  Comparing snapshots extended attributes:
+	snapper xadiff <number1>..<number2> [files]
+
+  Undo changes:
+	snapper undochange <number1>..<number2> [files]
+
+    Options for 'undochange' command:
+	--input, -i <file>		Read files for which to undo changes from file.
+
+  Rollback:
+	snapper rollback [number]
+
+    Options for 'rollback' command:
+	--print-number, -p		Print number of second created snapshot.
+	--description, -d <description>	Description for snapshots.
+	--cleanup-algorithm, -c <algo>	Cleanup algorithm for snapshots.
+	--userdata, -u <userdata>	Userdata for snapshots.
+
+  Setup quota:
+	snapper setup-quota
+
+  Cleanup snapshots:
+	snapper cleanup <cleanup-algorithm>
+
+    Options for 'cleanup' command:
+	--path <path>			Cleanup all configs affecting path.
+	--free-space <space>		Try to make space available.
+

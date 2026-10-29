@@ -1,0 +1,25 @@
+# t01 — what got installed, and how this build of snapper is compiled
+
+The sandbox apt frontend lock was held by another process for the whole
+session, so the packages were fetched with apt-get download and unpacked
+with dpkg-deb -x. These are the unmodified Ubuntu 24.04 archive files.
+
+$ apt-cache policy snapper btrfs-progs | grep -A1 ^[a-z]
+snapper:
+  Installed: (none)
+--
+btrfs-progs:
+  Installed: (none)
+
+$ snapper --version
+snapper 0.10.6
+libsnapper 7.2.0
+flags btrfs,lvm,no-ext4,xattrs,rollback,btrfs-quota,no-selinux
+
+$ btrfs --version
+btrfs-progs v6.6.3
+$ ls snapper-tool/debs/   (the packages, exactly as the archive serves them)
+btrfs-progs_6.6.3-1.1build2_amd64.deb
+libbtrfs0t64_6.6.3-1.1build2_amd64.deb
+libsnapper7t64_0.10.6-1.1build1_amd64.deb
+snapper_0.10.6-1.1build1_amd64.deb

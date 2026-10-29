@@ -1,0 +1,26 @@
+site_name: Snapper for Mere Mortals
+site_description: A plain language guide to Snapper, the snapshot manager for Btrfs. Making timeline and before-and-after snapshots, pruning them with cleanup rules, recovering single files, and rolling a whole system back, with an honest account of what a snapshot cannot do.
+site_url: https://paulsullivan33-dev.github.io/snapper-for-mere-mortals/
+copyright: 'Part of <a href="https://paulsullivan33-dev.github.io/mere-mortals/">For Mere Mortals</a> · Text <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>, code MIT'
+
+# Guides live at the repo root (nice for GitHub browsing).
+# The deploy workflow copies them into docs/ before building.
+theme:
+  name: material
+
+nav:
+  - Home: index.md
+  - What Snapper Is: what-snapper-is.md
+  - The Moving Parts: the-moving-parts.md
+  - Installing Snapper: installing-snapper.md
+  - Your First Snapshot: your-first-snapshot.md
+  - Configs and Subvolumes: configs-and-subvolumes.md
+  - Snapshot Types and Cleanup: snapshot-types-and-cleanup.md
+  - Rollback and Recovering Files: rollback-and-recovery.md
+  - Snapper and Package Managers: snapper-and-package-managers.md
+  - Recipes: recipes.md
+  - The Neighbours: the-neighbours.md
+  - Limits: limits.md
+  - Troubleshooting: troubleshooting.md
+  - Glossary: glossary.md
+  - Writing Criteria: criteria.md

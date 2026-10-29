@@ -1,0 +1,61 @@
+# t03 — a real btrfs filesystem, created and examined unmounted
+
+$ dd if=/dev/zero of=btrfs.img bs=1M count=512
+created 512 MiB zeroed image
+
+$ mkfs.btrfs -L labfs btrfs2.img
+btrfs-progs v6.6.3
+See https://btrfs.readthedocs.io for more information.
+
+NOTE: several default settings have changed in version 5.15, please make sure
+      this does not affect your deployments:
+      - DUP for metadata (-m dup)
+      - enabled no-holes (-O no-holes)
+      - enabled free-space-tree (-R free-space-tree)
+
+Label:              labfs
+UUID:               da964184-fc08-400b-a1eb-931e2cb6946b
+Node size:          16384
+Sector size:        4096
+Filesystem size:    512.00MiB
+Block group profiles:
+  Data:             single            8.00MiB
+  Metadata:         DUP              32.00MiB
+  System:           DUP               8.00MiB
+SSD detected:       no
+Zoned device:       no
+Incompat features:  extref, skinny-metadata, no-holes, free-space-tree
+Runtime features:   free-space-tree
+Checksum:           crc32c
+Number of devices:  1
+Devices:
+   ID        SIZE  PATH      
+    1   512.00MiB  btrfs2.img
+
+
+$ btrfs filesystem show btrfs2.img
+Label: 'labfs'  uuid: da964184-fc08-400b-a1eb-931e2cb6946b
+	Total devices 1 FS bytes used 144.00KiB
+	devid    1 size 512.00MiB used 88.00MiB path /home/hatch/workspace/snapper-lab-work/btrfs2.img
+
+
+$ btrfs check btrfs2.img   (read-only consistency check, no mount needed)
+[1/7] checking root items
+[2/7] checking extents
+[3/7] checking free space tree
+[4/7] checking fs roots
+[5/7] checking only csums items (without verifying data)
+[6/7] checking root refs
+[7/7] checking quota groups skipped (not enabled on this FS)
+Opening filesystem to check...
+Checking filesystem on btrfs2.img
+UUID: da964184-fc08-400b-a1eb-931e2cb6946b
+found 147456 bytes used, no error found
+total csum bytes: 0
+total tree bytes: 147456
+total fs tree bytes: 32768
+total extent tree bytes: 16384
+btree space waste bytes: 140595
+file data blocks allocated: 0
+ referenced 0
+exit=0

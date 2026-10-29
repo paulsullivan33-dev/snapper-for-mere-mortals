@@ -1,0 +1,76 @@
+# t04 — snapper against a fake target root: the config layer works,
+# the snapshot layer refuses without a real btrfs mount
+
+$ snapper --no-dbus -r $FR list-configs    (nothing configured yet)
+Config | Subvolume
+-------+----------
+exit=0
+
+$ snapper --no-dbus -r $FR create-config /data
+Invalid subvolume.
+exit=1
+
+$ snapper --no-dbus -r $FR -f btrfs create-config /data    (fstype forced)
+Invalid subvolume.
+exit=1
+
+$ # hand-written config: the shipped default template with SUBVOLUME=/data,
+$ # installed as $FR/etc/snapper/configs/lab
+
+$ snapper --no-dbus -r $FR list-configs
+Config | Subvolume
+-------+----------
+exit=0
+
+$ snapper --no-dbus -r $FR -c lab get-config
+reading failed
+Key                    | Value
+-----------------------+------
+ALLOW_GROUPS           |      
+ALLOW_USERS            |      
+BACKGROUND_COMPARISON  | yes  
+EMPTY_PRE_POST_CLEANUP | yes  
+EMPTY_PRE_POST_MIN_AGE | 1800 
+FREE_LIMIT             | 0.2  
+FSTYPE                 | btrfs
+NUMBER_CLEANUP         | yes  
+NUMBER_LIMIT           | 50   
+NUMBER_LIMIT_IMPORTANT | 10   
+NUMBER_MIN_AGE         | 1800 
+QGROUP                 |      
+SPACE_LIMIT            | 0.5  
+SUBVOLUME              | /data
+SYNC_ACL               | no   
+TIMELINE_CLEANUP       | yes  
+TIMELINE_CREATE        | yes  
+TIMELINE_LIMIT_DAILY   | 10   
+TIMELINE_LIMIT_HOURLY  | 10   
+TIMELINE_LIMIT_MONTHLY | 10   
+TIMELINE_LIMIT_WEEKLY  | 0    
+TIMELINE_LIMIT_YEARLY  | 10   
+TIMELINE_MIN_AGE       | 1800 
+exit=0
+
+$ sed -i SNAPPER_CONFIGS: "" -> "lab" in $FR/etc/default/snapper
+$ snapper --no-dbus -r $FR list-configs
+Config | Subvolume
+-------+----------
+lab    | /data    
+exit=0
+
+$ snapper --no-dbus -r $FR -c lab set-config NUMBER_LIMIT=5 NUMBER_LIMIT_IMPORTANT=3
+reading failed
+exit=0
+$ grep -E "^NUMBER_LIMIT" $FR/etc/snapper/configs/lab    (the file itself, after set-config)
+NUMBER_LIMIT="5"
+NUMBER_LIMIT_IMPORTANT="3"
+
+$ snapper --no-dbus -r $FR -c lab list
+reading failed
+IO error (query default id failed, subvolume is not a btrfs subvolume).
+exit=1
+
+$ snapper --no-dbus -r $FR -c lab create --description "first try"
+reading failed
+IO error (subvolume is not a btrfs subvolume).
+exit=1

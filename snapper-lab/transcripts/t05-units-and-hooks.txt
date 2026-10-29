@@ -1,0 +1,130 @@
+# t05 — the machinery the package installs: services, timers, the apt hook
+
+===== lib/systemd/system/snapper-timeline.service
+[Unit]
+Description=Timeline of Snapper Snapshots
+Documentation=man:snapper(8) man:snapper-configs(5)
+After=nss-user-lookup.target
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/snapper/systemd-helper --timeline
+
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_FSETID CAP_SETFCAP CAP_SYS_ADMIN CAP_SYS_MODULE CAP_IPC_LOCK CAP_SYS_NICE
+LockPersonality=true
+NoNewPrivileges=false
+PrivateNetwork=true
+ProtectHostname=true
+RestrictAddressFamilies=AF_UNIX
+RestrictRealtime=true
+
+===== lib/systemd/system/snapper-timeline.timer
+
+[Unit]
+Description=Timeline of Snapper Snapshots
+Documentation=man:snapper(8) man:snapper-configs(5)
+
+[Timer]
+OnCalendar=hourly
+
+[Install]
+WantedBy=timers.target
+
+
+===== lib/systemd/system/snapper-cleanup.service
+[Unit]
+Description=Daily Cleanup of Snapper Snapshots
+Documentation=man:snapper(8) man:snapper-configs(5)
+After=nss-user-lookup.target
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/snapper/systemd-helper --cleanup
+IOSchedulingClass=idle
+CPUSchedulingPolicy=idle
+
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_FSETID CAP_SETFCAP CAP_SYS_ADMIN CAP_SYS_MODULE CAP_IPC_LOCK CAP_SYS_NICE
+LockPersonality=true
+NoNewPrivileges=false
+PrivateNetwork=true
+ProtectHostname=true
+RestrictAddressFamilies=AF_UNIX
+RestrictRealtime=true
+
+===== lib/systemd/system/snapper-cleanup.timer
+
+[Unit]
+Description=Daily Cleanup of Snapper Snapshots
+Documentation=man:snapper(8) man:snapper-configs(5)
+
+[Timer]
+OnBootSec=10m
+OnUnitActiveSec=1d
+
+[Install]
+WantedBy=timers.target
+
+
+===== lib/systemd/system/snapper-boot.service
+[Unit]
+Description=Take snapper snapshot of root on boot
+ConditionPathExists=/etc/snapper/configs/root
+After=nss-user-lookup.target
+Documentation=man:snapper(8)
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snapper --config root create --cleanup-algorithm number --description "boot"
+
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_FSETID CAP_SETFCAP CAP_SYS_ADMIN CAP_SYS_MODULE CAP_IPC_LOCK CAP_SYS_NICE
+LockPersonality=true
+NoNewPrivileges=false
+PrivateNetwork=true
+ProtectHostname=true
+RestrictAddressFamilies=AF_UNIX
+RestrictRealtime=true
+
+===== lib/systemd/system/snapper-boot.timer
+[Unit]
+Description=Take snapper snapshot of root on boot
+
+[Timer]
+OnBootSec=1
+
+[Install]
+WantedBy=timers.target
+
+===== lib/systemd/system/snapperd.service
+[Unit]
+Description=DBus interface for snapper
+Documentation=man:snapperd(8)
+
+[Service]
+Type=dbus
+BusName=org.opensuse.Snapper
+ExecStart=/usr/sbin/snapperd
+
+CapabilityBoundingSet=CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_FSETID CAP_SETFCAP CAP_SYS_ADMIN CAP_SYS_MODULE CAP_IPC_LOCK CAP_SYS_NICE
+LockPersonality=true
+NoNewPrivileges=false
+PrivateNetwork=true
+ProtectHostname=true
+RestrictAddressFamilies=AF_UNIX
+RestrictRealtime=true
+
+[Install]
+WantedBy=sysinit.target
+
+===== etc/apt/apt.conf.d/80snapper
+# https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=770938
+  DPkg::Pre-Invoke  { "if [ -e /etc/default/snapper ]; then . /etc/default/snapper; fi; if [ -x /usr/bin/snapper ] && [ ! x$DISABLE_APT_SNAPSHOT = 'xyes' ] && [ -e /etc/snapper/configs/root ]; then rm -f /var/tmp/snapper-apt || true ; snapper create -d apt -c number -t pre -p > /var/tmp/snapper-apt || true ; snapper cleanup number || true ; fi"; };
+  DPkg::Post-Invoke { "if [ -e /etc/default/snapper ]; then . /etc/default/snapper; fi; if [ -x /usr/bin/snapper ] && [ ! x$DISABLE_APT_SNAPSHOT = 'xyes' ] && [ -e /var/tmp/snapper-apt ]; then snapper create -d apt -c number -t post --pre-number=`cat /var/tmp/snapper-apt` || true ; snapper cleanup number || true ; fi"; };
+
+===== usr/share/dbus-1/system-services/org.opensuse.Snapper.service
+# DBus service activation config
+[D-BUS Service]
+Name=org.opensuse.Snapper
+Exec=/usr/sbin/snapperd
+User=root
+SystemdService=snapperd.service
+

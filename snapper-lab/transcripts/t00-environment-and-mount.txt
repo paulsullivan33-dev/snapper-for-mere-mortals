@@ -1,0 +1,73 @@
+# t00 — the lab machine, and the mount question, settled with evidence
+
+$ uname -a
+Linux htch-runtime 7.0.0-39-generic #1 SMP PREEMPT_DYNAMIC Thu Sep 24 08:42:15 UTC 2026 x86_64 x86_64 x86_64 GNU/Linux
+
+$ id
+uid=0(root) gid=0(root) groups=0(root)
+
+$ ls /dev    (a curated set: no block devices at all)
+char
+console
+core
+fd
+full
+log
+mqueue
+net
+null
+ptmx
+pts
+random
+shm
+stderr
+stdin
+stdout
+tty
+urandom
+zero
+
+$ ls /sys/block/    (the kernel does have loop devices)
+dm-0
+dm-1
+dm-2
+loop0
+loop1
+loop2
+loop3
+loop4
+loop5
+loop6
+loop7
+vda
+vdb
+vdc
+vdd
+
+$ grep btrfs /proc/filesystems    (the kernel knows btrfs)
+	btrfs
+
+$ capsh --decode=$(grep CapEff /proc/self/status | cut -f2) | tr , "\\n" | grep -E "sys_admin|mknod"
+cap_sys_admin
+cap_mknod
+
+$ mkdir -p provemount && mount -t tmpfs none provemount && echo TMPFS MOUNT OK && umount provemount && rmdir provemount
+TMPFS MOUNT OK
+
+$ mknod loop0 b 7 0    (making the missing device node)
+mknod: loop0: Operation not permitted
+exit=1
+
+$ mkdir -p devmnt && mount -t devtmpfs devtmpfs devmnt
+mount: /home/hatch/workspace/snapper-lab-work/devmnt: permission denied.
+       dmesg(1) may have more information after failed mount system call.
+exit=32
+
+$ losetup -f
+losetup: cannot find an unused loop device: No such file or directory
+exit=1
+
+Conclusion: the mount syscall itself works (tmpfs proves it) and the
+kernel has loop devices, but /dev is curated with no block devices,
+creating a device node is refused, and devtmpfs is refused. There is
+no route from an image file to a mounted btrfs filesystem here.
